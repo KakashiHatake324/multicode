@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/sj14/multicode/decode"
+	"github.com/rafaeltorres324/multicode/decode"
 )
 
 const tmpl string = `<!DOCTYPE html>

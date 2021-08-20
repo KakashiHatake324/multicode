@@ -1,6 +1,6 @@
 // +heroku install ./cmd/decode-web/...
 
-module github.com/sj14/multicode
+module github.com/rafaeltorres324/multicode
 
 go 1.12
 

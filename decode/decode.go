@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/sj14/multicode/decode/protodec"
+	"github.com/rafaeltorres324/multicode/decode/protodec"
 )
 
 // Encoding handled by the decoding.

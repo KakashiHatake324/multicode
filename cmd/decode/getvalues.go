@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/sj14/multicode/decode"
+	"github.com/rafaeltorres324/multicode/decode"
 )
 
 func GetValues(input []byte) string {
