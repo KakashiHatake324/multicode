@@ -17,7 +17,7 @@ func SendData() {
 
 		body := bytes.NewReader(json)
 
-		req, err := http.NewRequest("POST", "http://akamai.kageaio.com:7821/PostData", body)
+		req, err := http.NewRequest("POST", server, body)
 		if err != nil {
 			log.Println("Error sending data..")
 		}
@@ -30,6 +30,8 @@ func SendData() {
 			bodyText, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				log.Println("Error sending data..")
+			} else {
+				SentData++
 			}
 
 			log.Println(string(bodyText))

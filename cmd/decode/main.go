@@ -2,20 +2,56 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var verbose bool
 var AllData []TokenData
 var CharlesData CharlesLog
+var SentData int
+var root = "/Users/support1/CharlesFNLExports"
+
+var server = "http://akamai.kageaio.com:7821/PostData"
+
+//var server = "http://localhost:7821/PostData"
 
 func main() {
 
-	jsonData, err := os.Open("/Users/support1/CharlesFNLExports/Untitled.chlsj")
+	for {
+		CheckFiles()
+		log.Println("Waiting for more files..")
+		time.Sleep(20 * time.Second)
+	}
+}
+
+func CheckFiles() {
+	var files []string
+
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		files = append(files, path)
+		return nil
+	})
+	if err != nil {
+		log.Println(err)
+	}
+	for _, file := range files {
+		if !strings.Contains(file, "chlsj") || strings.Contains(file, "used") {
+			continue
+		}
+		fmt.Println(file)
+		UseFile(file)
+	}
+}
+
+func UseFile(file string) {
+	jsonData, err := os.Open(file)
 	if err != nil {
 		log.Println(err)
 	}
@@ -24,22 +60,37 @@ func main() {
 
 	json.Unmarshal(dataFile, &CharlesData)
 
-	log.Println(CharlesData[1].Host)
 	log.Println(len(CharlesData))
 	jsonData.Close()
 
 	for f := range CharlesData {
-
-		if CharlesData[f].Host != "www.recaptcha.net" {
-			continue
+		if CharlesData[f].Host == "www.recaptcha.net" {
+			if strings.Contains(CharlesData[f].Path, "iosc") {
+				continue
+			}
+			StartDecoding([]byte(CharlesData[f].Request.Body.Encoded))
 		}
-		StartDecoding([]byte(CharlesData[f].Request.Body.Encoded))
-
 	}
+
+	MoveFile(file)
 
 	log.Println(len(AllData))
 
 	SendData()
+
+	log.Println("Total data sent", SentData)
+	AllData = nil
+}
+
+func MoveFile(file string) {
+	Original_Path := file
+	New_Path := "/Users/support1/CharlesFNLExports/used/" + GetTimestamp() + ".chlsj"
+	log.Println("Renaming file", Original_Path, "to", New_Path)
+	time.Sleep(2 * time.Second)
+	e := os.Rename(Original_Path, New_Path)
+	if e != nil {
+		log.Println(e)
+	}
 }
 
 func StartDecoding(input []byte) {
@@ -60,7 +111,6 @@ func StartDecoding(input []byte) {
 	NewToken.DeviceInfo = strings.ReplaceAll(splitData[3], "\"", "")
 
 	AllData = append(AllData, NewToken)
-
 }
 
 type TokenData struct {
