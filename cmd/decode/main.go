@@ -10,6 +10,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/joho/godotenv"
+	"github.com/rafaeltorres324/multicode/cmd/decode/database"
 )
 
 var verbose bool
@@ -18,9 +21,14 @@ var CharlesData CharlesLog
 var SentData int
 var root = "/Users/support1/CharlesFNLExports"
 
-var server = "http://akamai.kageaio.com:7821/PostData"
+func init() {
+	// Load environment variables
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-//var server = "http://localhost:7821/PostData"
+	database.Init()
+}
 
 func main() {
 
