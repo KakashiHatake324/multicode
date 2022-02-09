@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/rafaeltorres324/multicode/cmd/decode/database"
@@ -22,6 +23,7 @@ func SendData() {
 
 	collection := database.Instance.Client.Database(os.Getenv("DATABASE_NAME")).Collection(os.Getenv("TOKENS_COLLECTION"))
 	currentTime := time.Now().UTC().Format("2006-01-02T15:04:05Z")
+
 	for i := range AllData {
 		// Json marshal the data
 		json, _ := json.Marshal(AllData[i])
@@ -39,7 +41,7 @@ func SendData() {
 			log.Println(err)
 		}
 
-		fmt.Println("New Token Payload Inserted: ", insertResult.InsertedID)
+		fmt.Println("[", strings.ToUpper(AllData[i].Site), "] New Token Payload Inserted: ", insertResult.InsertedID)
 
 		_, err = hex.DecodeString(hx)
 		if err != nil {
@@ -48,4 +50,5 @@ func SendData() {
 			SentData++
 		}
 	}
+
 }

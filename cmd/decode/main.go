@@ -19,7 +19,7 @@ var verbose bool
 var AllData []TokenData
 var CharlesData CharlesLog
 var SentData int
-var root = "/Users/support1/CharlesFNLExports"
+var root = "/Users/support2/CharlesFNLExports"
 
 func init() {
 	// Load environment variables
@@ -86,12 +86,11 @@ func UseFile(file string) {
 		}
 	}
 
-	//MoveFile(file)
+	log.Println("Data loaded", len(AllData))
 
-	log.Println(AllData)
-	log.Println(len(AllData))
+	SendData()
 
-	//SendData()
+	MoveFile(file)
 
 	log.Println("Total data sent", SentData)
 	AllData = nil
@@ -111,7 +110,7 @@ func CheckIfJDSports(Header []struct {
 
 func MoveFile(file string) {
 	Original_Path := file
-	New_Path := "/Users/support1/CharlesFNLExports/used/" + GetTimestamp() + ".chlsj"
+	New_Path := root + "/used/" + GetTimestamp() + ".chlsj"
 	log.Println("Renaming file", Original_Path, "to", New_Path)
 	time.Sleep(2 * time.Second)
 	e := os.Rename(Original_Path, New_Path)
