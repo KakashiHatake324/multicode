@@ -76,18 +76,37 @@ func UseFile(file string) {
 			if strings.Contains(CharlesData[f].Path, "iosc") {
 				continue
 			}
-			StartDecoding([]byte(CharlesData[f].Request.Body.Encoded))
+			var site string
+			if CheckIfJDSports(CharlesData[f].Request.Header.Headers) {
+				site = "jdsports"
+			} else {
+				site = "finishline"
+			}
+			StartDecoding([]byte(CharlesData[f].Request.Body.Encoded), site)
 		}
 	}
 
-	MoveFile(file)
+	//MoveFile(file)
 
+	log.Println(AllData)
 	log.Println(len(AllData))
 
-	SendData()
+	//SendData()
 
 	log.Println("Total data sent", SentData)
 	AllData = nil
+}
+
+func CheckIfJDSports(Header []struct {
+	Name  string "json:\"name\""
+	Value string "json:\"value\""
+}) bool {
+	for j := range Header {
+		if strings.Contains(Header[j].Value, "jd") {
+			return true
+		}
+	}
+	return false
 }
 
 func MoveFile(file string) {
@@ -101,7 +120,7 @@ func MoveFile(file string) {
 	}
 }
 
-func StartDecoding(input []byte) {
+func StartDecoding(input []byte, site string) {
 
 	data := GetValues(input)
 
@@ -111,12 +130,15 @@ func StartDecoding(input []byte) {
 	text = strings.ReplaceAll(text, "3:", "")
 	text = strings.ReplaceAll(text, "4:", "")
 	splitData := strings.Split(text, " ")
+	TS, _ := strconv.ParseInt(splitData[2], 10, 64)
 
-	var NewToken TokenData
-	NewToken.Token = strings.ReplaceAll(splitData[0], "\"", "")
-	NewToken.Action = strings.ReplaceAll(splitData[1], "\"", "")
-	NewToken.Timestamp, _ = strconv.ParseInt(splitData[2], 10, 64)
-	NewToken.DeviceInfo = strings.ReplaceAll(splitData[3], "\"", "")
+	NewToken := TokenData{
+		Token:      strings.ReplaceAll(splitData[0], "\"", ""),
+		Action:     strings.ReplaceAll(splitData[1], "\"", ""),
+		Timestamp:  TS,
+		DeviceInfo: strings.ReplaceAll(splitData[3], "\"", ""),
+		Site:       site,
+	}
 
 	AllData = append(AllData, NewToken)
 }
@@ -126,6 +148,7 @@ type TokenData struct {
 	Action     string `json:"action"`
 	Timestamp  int64  `json:"timestamp"`
 	DeviceInfo string `json:"deviceInfo"`
+	Site       string `json:"-"`
 }
 
 type ReCaptchaRequest struct {

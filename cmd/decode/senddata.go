@@ -7,28 +7,31 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/rafaeltorres324/multicode/cmd/decode/database"
 )
 
 type CollectionsData struct {
-	Payload string `json:"payload"`
+	CreatedAt string `json:"createdAt"`
+	Payload   string `json:"payload"`
+	Site      string `json:"site"`
 }
 
 func SendData() {
-	//client := http.Client{}
 
 	collection := database.Instance.Client.Database(os.Getenv("DATABASE_NAME")).Collection(os.Getenv("TOKENS_COLLECTION"))
-
+	currentTime := time.Now().UTC().Format("2006-01-02T15:04:05Z")
 	for i := range AllData {
-
 		// Json marshal the data
 		json, _ := json.Marshal(AllData[i])
 		// Encode the data to hex in order to save space
 		hx := hex.EncodeToString([]byte(string(json)))
 
 		dbBody := CollectionsData{
-			Payload: hx,
+			CreatedAt: currentTime,
+			Payload:   hx,
+			Site:      AllData[i].Site,
 		}
 
 		insertResult, err := collection.InsertOne(context.TODO(), dbBody)
@@ -44,33 +47,5 @@ func SendData() {
 		} else {
 			SentData++
 		}
-
-		//log.Println(string(bs))
-
-		/*
-			body := bytes.NewReader(json)
-
-			req, err := http.NewRequest("POST", server, body)
-			if err != nil {
-				log.Println("Error sending data..")
-			}
-			req.Header.Set("Content-Type", "Application/Json")
-			resp, err := client.Do(req)
-			if err != nil {
-				log.Println("Error sending data..")
-			} else {
-
-				bodyText, err := ioutil.ReadAll(resp.Body)
-				if err != nil {
-					log.Println("Error sending data..")
-				} else {
-					SentData++
-				}
-
-				log.Println(string(bodyText))
-				defer resp.Body.Close()
-
-			}
-		*/
 	}
 }
