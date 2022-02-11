@@ -14,15 +14,15 @@ import (
 )
 
 type CollectionsData struct {
-	CreatedAt string `json:"createdAt"`
-	Payload   string `json:"payload"`
-	Site      string `json:"site"`
+	CreatedAt time.Time `json:"createdat"`
+	Payload   string    `json:"payload"`
+	Site      string    `json:"site"`
 }
 
 func SendData() {
 
 	collection := database.Instance.Client.Database(os.Getenv("DATABASE_NAME")).Collection(os.Getenv("TOKENS_COLLECTION"))
-	currentTime := time.Now().UTC().Format("2006-01-02T15:04:05Z")
+	currentTime := time.Now().Add(-2 * time.Hour)
 
 	for i := range AllData {
 		// Json marshal the data
@@ -49,6 +49,35 @@ func SendData() {
 		} else {
 			SentData++
 		}
+	}
+
+}
+
+func SendDummy() {
+	collection := database.Instance.Client.Database(os.Getenv("DATABASE_NAME")).Collection(os.Getenv("TOKENS_COLLECTION"))
+	currentTime := time.Now().Add(-30 * time.Hour)
+
+	// Encode the data to hex in order to save space
+	hx := hex.EncodeToString([]byte("sdfdsfsd"))
+
+	dbBody := CollectionsData{
+		CreatedAt: currentTime,
+		Payload:   hx,
+		Site:      "finishline",
+	}
+
+	insertResult, err := collection.InsertOne(context.TODO(), dbBody)
+	if err != nil {
+		log.Println(err)
+	}
+
+	fmt.Println("[", "] New Token Payload Inserted: ", insertResult.InsertedID)
+
+	_, err = hex.DecodeString(hx)
+	if err != nil {
+		log.Println(err)
+	} else {
+		SentData++
 	}
 
 }

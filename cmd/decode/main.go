@@ -31,7 +31,8 @@ func init() {
 }
 
 func main() {
-
+	//SendDummy()
+	//return
 	for {
 		CheckFiles()
 		log.Println("Waiting for more files..")
